@@ -41,30 +41,36 @@ body {
   font-size: 12px;
 }
 
-/* Info */
-.country__flag {
+.country-info__main {
   display: flex;
+  align-items: center;
+
   gap: 10px;
   margin-bottom: 10px;
 }
-.country__img {
-  display: block;
-  width: 100px;
+
+.country-info__flag {
+  max-width: 30px;
+  max-height: 20px;
 }
-.country__name {
+
+.country-info__name {
   display: flex;
   align-items: center;
   margin: 0;
 
-  font-weight: 900;
-  font-size: 30px;
+  font-weight: 700;
+  font-size: 25px;
 }
 
-.country__info {
-  display: flex;
-  flex-direction: column;
+.country-info__openInfo {
+  list-style: none;
+
   gap: 10px;
   margin: 0;
   padding: 0;
-  list-style: none;
+}
+
+.country-info__title {
+  font-weight: 700;
 }

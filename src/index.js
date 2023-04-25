@@ -3,60 +3,83 @@ import debounce from 'lodash.debounce';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import { fetchCountries } from './js/fetchCountries';
 
-// Notiflix.Notify.success('Sol lucet omnibus');
-
-// Notiflix.Notify.failure('Qui timide rogat docet negare');
-
-// Notiflix.Notify.warning('Memento te hominem esse');
-
-// Notiflix.Notify.info('Cogito ergo sum');
-
 const inputForm = document.querySelector('#search-box');
 const countryList = document.querySelector('.country-list');
-const contryInfo = document.querySelector('.country-info');
+const countryInfo = document.querySelector('.country-info');
 const DEBOUNCE_DELAY = 300;
-let serchCountryName = inputForm.textContent;
-console.log(inputForm.textContent); //// del
 
 inputForm.addEventListener('input', debounce(onInput, DEBOUNCE_DELAY));
 
 function onInput(evt) {
   evt.preventDefault();
-  console.log(evt); //// del
-  serchCountryName = evt.target.value.trim();
-  console.log(serchCountryName.trim()); //// del
+  const serchCountryName = evt.target.value.trim();
 
   fetchCountries(serchCountryName)
-    .then(data => (countryList.innerHTML = createMarcup(data)))
-    .catch(error => console.log(error));
+    .then(data => {
+      if (data.length > 10) {
+        Notify.info(
+          'Too many matches found. Please enter a more specific name.'
+        );
+      } else if ((data.length >= 2) & (data.length <= 10)) {
+        resetMarkup(countryList);
+        countryList.innerHTML = createMarkupList(data);
+        resetMarkup(countryInfo);
+      } else {
+        resetMarkup(countryInfo);
+        countryInfo.innerHTML = createMarkupInfo(data);
+        resetMarkup(countryList);
+      }
+    })
+
+    .catch(() => {
+      resetMarkup(countryList);
+      resetMarkup(countryInfo);
+      Notify.failure('Oops, there is no country with that name');
+    });
 }
 
-// fetchCountries(serchCountryName)
-//   .then(data => console.log(data))
-//   .catch(error => console.log(error));
-
-// function fetchCountries(byName) {
-//   console.log(byName); //// del
-//   const URL = `${BASE_URL}${BASE_SEARCH_POINT}${byName}?${SERCH_PARAMS}`;
-//   console.log(URL); //// del
-//   return fetch(URL).then(response => {
-//     if (!response.ok) {
-//       throw new Error(response.statusText);
-//     }
-
-//     return response.json();
-//   });
-// }
-
-function createMarcup(arr) {
+function createMarkupList(arr) {
   return arr
     .map(
       ({
-        name: { common },
         flags: { svg, alt },
+        name: { common },
       }) => `<li class="country-list__item"><img class="country-list__img" src="${svg}" alt="${alt}">
 <h5 class="country-list__text">${common}</h5>
 </li>`
     )
     .join('');
+}
+
+function createMarkupInfo(arr) {
+  return arr
+    .map(
+      ({
+        flags: { svg, alt },
+        name: { official },
+        capital,
+        languages,
+        population,
+      }) =>
+        `<div class="country-info__main" >
+    <img class="country-info__flag" src="${svg}" alt="${alt}">
+<h2 class="country-info__name">${official}</h2>
+          </div>
+          <ul class="country-info__openInfo">
+          <li class="country-info__item">
+            <span class="country-info__title">Capital:
+</span>${capital}</li>
+          <li class="country-info__item">
+            <span class="country-info__title">Langueges:
+</span> ${Object.values(languages).join(', ')}</li>
+          <li class="country-info__item">
+            <span class="country-info__title">Population:
+</span> ${population}</li>
+          </ul>`
+    )
+    .join('');
+}
+
+function resetMarkup(e) {
+  e.innerHTML = '';
 }
