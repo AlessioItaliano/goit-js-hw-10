@@ -13,10 +13,17 @@ inputForm.addEventListener('input', debounce(onInput, DEBOUNCE_DELAY));
 function onInput(evt) {
   evt.preventDefault();
   const serchCountryName = evt.target.value.trim();
+  if (!serchCountryName) {
+    resetMarkup(countryList);
+    resetMarkup(countryInfo);
+    return;
+  }
 
   fetchCountries(serchCountryName)
     .then(data => {
       if (data.length > 10) {
+        resetMarkup(countryList);
+        resetMarkup(countryInfo);
         Notify.info(
           'Too many matches found. Please enter a more specific name.'
         );
